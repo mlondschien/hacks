@@ -1,0 +1,14 @@
+# Combine PDFs, adding a single page with the file name
+# Adapted from https://unix.stackexchange.com/questions/291596/how-to-merge-pdf-file-so-that-each-file-starts-with-file-name
+declare -a files del
+i=1
+for file in *.pdf
+do  echo -e '.ft H\n.ps 30\n.vs 35\n.sp 10c\n.ce\n'"$file" |
+    groff -Tps | 
+    ps2pdf - - >/tmp/title$i.pdf
+    files+=(/tmp/title$i.pdf "$file")
+    del+=(/tmp/title$i.pdf)
+    let i=i+1
+done
+echo "${files[@]}"
+gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile=merged.pdf "${files[@]}"
